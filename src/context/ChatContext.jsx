@@ -30,7 +30,7 @@ export const ChatContextProvider = ({ children, user }) => {
     console.log("notifications", notifications);
     //inittal  socket
     useEffect(() => {
-        const newSocket = io("http://localhost:3000");
+        const newSocket = io("https://socket-b1x3.onrender.com");
         setSocket(newSocket);
         return () => {
             newSocket.disconnect();
