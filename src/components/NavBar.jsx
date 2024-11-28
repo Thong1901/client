@@ -27,16 +27,16 @@ const NavBar = () => {
                                 to="/login"
                                 className="link-light text-decoration-none"
                             >
-                                Logout
+                                Đăng xuất
                             </Link>
                         </>)
                     }
                     {
                         !user && (<>  <Link to="/login" className="link-light text-decoration-none">
-                            Login
+                            Đăng nhập
                         </Link>
                             <Link to="/register" className="link-light text-decoration-none">
-                                Register
+                                Đăng ký
                             </Link>
 
                         </>)

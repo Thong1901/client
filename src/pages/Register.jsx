@@ -23,7 +23,7 @@ const Register = () => {
             }}>
                 <Col xs={6}>
                     <Stack gap={3}>
-                        <h2>Register</h2>
+                        <h2>Đăng Ký</h2>
 
                         <Form.Control type="text" placeholder="Name"
                             onChange={(e) => updateRegisterInfo({
@@ -42,7 +42,7 @@ const Register = () => {
                             })} />
 
                         <Button variant="primary" type="submit">
-                            {isRegisterLoading ? "Creating your account" : "Register"}
+                            {isRegisterLoading ? "Creating your account" : "Đăng Ký"}
                         </Button>
 
                         {

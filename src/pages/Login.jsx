@@ -22,7 +22,7 @@ const Login = () => {
             }}>
                 <Col xs={6}>
                     <Stack gap={3}>
-                        <h2>Login</h2>
+                        <h2>Đăng nhập</h2>
 
                         <Form.Control type="email" placeholder="Email" onChange={(e) =>
                             updateLoginInfo({ ...loginInfo, email: e.target.value })
@@ -30,7 +30,7 @@ const Login = () => {
                         <Form.Control type="password" placeholder="Password" onChange={(e) =>
                             updateLoginInfo({ ...loginInfo, password: e.target.value })} />
                         <Button variant="primary" type="submit">
-                            {isLoginLoading ? "Geting you in..." : "Login"}
+                            {isLoginLoading ? "Geting you in..." : "Đăng Nhập"}
                         </Button>
                         {loginError?.error && (< Alert variant="danger">
                             <p>{loginError?.message}</p>
