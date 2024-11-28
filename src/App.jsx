@@ -1,13 +1,13 @@
-import "bootstrap/dist/css/bootstrap.min.css";
 import { Routes, Route, Navigate } from "react-router-dom";
+import NavBar from "./components/NavBar.jsx";
 import Chat from "./pages/chat.jsx";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import { Container } from "react-bootstrap";
-import NavBar from "./components/NavBar.jsx";
 import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext.jsx";
 import { ChatContextProvider } from "./context/ChatContext.jsx";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 
 function App() {
