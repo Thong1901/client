@@ -69,7 +69,7 @@ const UserChat = ({ chat, user }) => {
             </div>
         </Stack >
     );
-    return (<>UserChat</>);
+
 };
 
 export default UserChat;

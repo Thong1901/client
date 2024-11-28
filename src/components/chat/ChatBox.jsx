@@ -5,20 +5,26 @@ import { ChatContext } from "../../context/ChatContext";
 import { useFechRecipientUser } from "../../hooks/useFetchRecipient";
 import moment from "moment"
 import InputEmoji from "react-input-emoji"
+import VideoCall from "../chat/CallVideo"
+
 const ChatBox = () => {
     const { user } = useContext(AuthContext);
-    const { currentChat, messages, isMessagesLoading, sendTextMessage } = useContext(ChatContext);
+    const { currentChat, messages, isMessagesLoading, sendTextMessage, startCall, isCallInProgress, incomingCall, acceptCall, rejectCall } = useContext(ChatContext);
     const { recipientUser } = useFechRecipientUser(currentChat, user);
 
     const [textMessage, setTextMessage] = useState("");
-    const scroll = useRef();
 
-    console.log("text", textMessage)
+
+
 
     useEffect(() => {
         scroll.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages])
-
+    useEffect(() => {
+        if (incomingCall) {
+            alert(`Bạn có cuộc gọi video đến từ ${incomingCall.senderId}`);
+        }
+    }, [incomingCall]);
     if (!recipientUser)
         return (
             <p style={{ textAlign: "center", width: "100%" }}>
@@ -32,10 +38,38 @@ const ChatBox = () => {
                 LoadingChat...
             </p>
         );
+
+    if (isCallInProgress) {
+        return <VideoCall />; // Hiển thị giao diện gọi video
+    }
     return (
         <Stack gap={4} className="chat-box">
             <div className="chat-header">
                 <strong>{recipientUser?.name}</strong>
+                <button
+                    className="video-call-btn"
+                    onClick={() => startCall(recipientUser._id)}  // Start video call with recipient user
+                >
+                    {incomingCall && !isCallInProgress && (
+                        <div className="call-notification">
+                            <p>Cuộc gọi video đến từ {incomingCall.senderId}</p>
+                            <button onClick={acceptCall}>Chấp nhận</button>
+                            <button onClick={rejectCall}>Từ chối</button>
+                        </div>
+                    )}
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        className="bi bi-camera-video"
+                        viewBox="0 0 16 16"
+                    >
+                        <path fill-rule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2zm11.5 5.175 3.5 1.556V4.269l-3.5 1.556zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1z" />
+                    </svg>
+
+                </button>
+
             </div>
             <Stack gap={3} className="messages">
                 {messages &&

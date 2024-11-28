@@ -1,5 +1,5 @@
 
-import { createContext, useState, useEffect, useCallback } from "react";
+import { createContext, useState, useEffect, useCallback, useRef } from "react";
 import { baseUrl, getRequest, postRequest } from "../utils/services";
 import { io } from "socket.io-client";
 
@@ -27,7 +27,223 @@ export const ChatContextProvider = ({ children, user }) => {
     const [allUsers, setAllUsers] = useState([]);
 
 
-    console.log("notifications", notifications);
+
+
+    //tạo cuộc gọi 
+    const [localStream, setLocalStream] = useState(null);
+    const [remoteStream, setRemoteStream] = useState(null);
+    const [incomingCall, setIncomingCall] = useState(null);
+    const [peerConnection, setPeerConnection] = useState(null);
+    const [isCallInProgress, setIsCallInProgress] = useState(false);
+    const [isCallAccepted, setIsCallAccepted] = useState(false);
+    const [isCallRejected, setIsCallRejected] = useState(false);
+    const videoRef = useRef(null);
+    const remoteVideoRef = useRef(null);
+    const getMediaStream = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            setLocalStream(stream);
+        } catch (err) {
+            console.error("Error accessing media devices.", err);
+        }
+    };
+
+    useEffect(() => {
+        if (videoRef.current && localStream) {
+            videoRef.current.srcObject = localStream;
+        }
+    }, [localStream]);
+
+    useEffect(() => {
+        if (remoteVideoRef.current && remoteStream) {
+            remoteVideoRef.current.srcObject = remoteStream;
+        }
+    }, [remoteStream]);
+
+    const startCall = useCallback(async (recipientId) => {
+        const pc = new RTCPeerConnection({
+            iceServers: [
+                { urls: "stun:stun.l.google.com:19302" }, // Sử dụng STUN server để định tuyến
+            ],
+        });
+
+        setPeerConnection(pc);
+
+        // Xử lý stream local
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        setLocalStream(stream);
+        stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+
+        // Gửi ICE Candidate qua socket
+        pc.onicecandidate = (event) => {
+            if (event.candidate) {
+                socket.emit("sendIceCandidate", {
+                    recipientId,
+                    candidate: event.candidate,
+                });
+            }
+        };
+
+
+        // Nhận remote stream
+        pc.ontrack = (event) => {
+            setRemoteStream(event.streams[0]);
+        };
+
+        // Tạo Offer và gửi qua socket
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+
+        socket.emit("sendOffer", { recipientId, offer });
+        setIsCallInProgress(true);
+    }, [socket]);
+
+    const answerCall = useCallback(async (senderId, offer) => {
+        const pc = new RTCPeerConnection({
+            iceServers: [
+                { urls: "stun:stun.l.google.com:19302" },
+            ],
+        });
+
+        setPeerConnection(pc);
+
+        // Xử lý stream local
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        setLocalStream(stream);
+        stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+
+        // Nhận remote stream
+        pc.ontrack = (event) => {
+            setRemoteStream(event.streams[0]);
+        };
+
+        // Gửi ICE Candidate qua socket
+        pc.onicecandidate = (event) => {
+            if (event.candidate) {
+                socket.emit("sendIceCandidate", {
+                    recipientId: senderId,
+                    candidate: event.candidate,
+                });
+            }
+        };
+
+        // Thiết lập Offer và gửi Answer
+        await pc.setRemoteDescription(new RTCSessionDescription(offer));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+
+        socket.emit("sendAnswer", { recipientId: senderId, answer });
+        setIsCallInProgress(true);
+    }, [socket]);
+    const acceptCall = useCallback(async () => {
+        if (incomingCall) {
+            const { senderId, offer } = incomingCall;
+
+            const pc = new RTCPeerConnection({
+                iceServers: [
+                    { urls: "stun:stun.l.google.com:19302" },
+                ],
+            });
+
+            setPeerConnection(pc);
+
+            // Handle local stream
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            setLocalStream(stream);
+            stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+
+            // Receive remote stream
+            pc.ontrack = (event) => {
+                setRemoteStream(event.streams[0]);
+            };
+
+            // Send ICE candidate via socket
+            pc.onicecandidate = (event) => {
+                if (event.candidate) {
+                    socket.emit("sendIceCandidate", {
+                        recipientId: senderId,
+                        candidate: event.candidate,
+                    });
+                }
+            };
+
+            // Set remote description and create answer
+            await pc.setRemoteDescription(new RTCSessionDescription(offer));
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+
+            socket.emit("sendAnswer", { recipientId: senderId, answer });
+            setIsCallInProgress(true);
+            setIsCallAccepted(true);
+        }
+    }, [incomingCall, socket]);
+    const rejectCall = useCallback(() => {
+        if (socket && incomingCall) {
+            const { senderId } = incomingCall;
+            socket.emit("callRejected", { recipientId: senderId });
+        }
+
+        setIsCallInProgress(false);
+        setIsCallAccepted(false);
+        setIsCallRejected(true);
+        setIncomingCall(null);
+    }, [socket, incomingCall]);
+
+    const endCall = useCallback(() => {
+        if (peerConnection) {
+            peerConnection.close();
+            setPeerConnection(null);
+        }
+        setLocalStream(null);
+        setRemoteStream(null);
+        setIsCallInProgress(false);
+        setIsCallAccepted(false);
+        setIsCallRejected(false);
+    }, [peerConnection]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        socket.on("receiveOffer", async ({ senderId, offer }) => {
+            setIncomingCall({ senderId, offer });
+
+            const response = await handleCallResponse(); // Trả về "accept" hoặc "reject"
+
+            if (response === "accept") {
+                answerCall(senderId, offer);
+                setIsCallAccepted(true);
+            } else {
+                socket.emit("callRejected", { recipientId: senderId });
+                setIsCallRejected(true);
+                endCall();
+            }
+        });
+
+        socket.on("callRejected", () => {
+            alert("Cuộc gọi đã bị từ chối.");
+            endCall();
+        });
+
+        return () => {
+            socket.off("receiveOffer");
+            socket.off("callRejected");
+        };
+    }, [socket, answerCall, endCall]);
+
+    // Xử lý phản hồi gọi
+    const handleCallResponse = () => {
+        return new Promise((resolve) => {
+            const acceptCall = window.confirm("Bạn có muốn chấp nhận cuộc gọi không?");
+            if (acceptCall) {
+                resolve("accept");
+            } else {
+                resolve("reject");
+            }
+        });
+    };
+
+
+
     //inittal  socket
     useEffect(() => {
         const newSocket = io("https://socket-b1x3.onrender.com");
@@ -75,13 +291,30 @@ export const ChatContextProvider = ({ children, user }) => {
                 setNotifications(prev => [res, ...prev]);
             }
         })
+        socket.on("receiveOffer", async ({ senderId, offer }) => {
+            answerCall(senderId, offer);
+        });
+
+        socket.on("receiveAnswer", async ({ answer }) => {
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+        });
+
+        socket.on("receiveIceCandidate", async ({ candidate }) => {
+            if (peerConnection) {
+                await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+            }
+        });
+
 
         return () => {
             socket.off("getMessage");
             socket.off("getNotification");
+            socket.off("receiveOffer");
+            socket.off("receiveAnswer");
+            socket.off("receiveIceCandidate");
         }
 
-    }, [socket, currentChat]);
+    }, [socket, currentChat, answerCall, peerConnection]);
 
     //getUsers
     useEffect(() => {
@@ -270,6 +503,18 @@ export const ChatContextProvider = ({ children, user }) => {
                 markAllNotificationAsread,
                 markNotificationAsRead,
                 markThisUserNotificationsAsRead,
+                // Gọi video
+                localStream,
+                remoteStream,
+                isCallInProgress,
+                startCall,
+                endCall,
+                answerCall,
+                isCallAccepted,
+                isCallRejected,
+                incomingCall,
+                rejectCall,
+                acceptCall,
             }}
         >
             {children}

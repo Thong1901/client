@@ -224,3 +224,68 @@ body {
     align-items: center;
     justify-content: center;
 }
+
+.video-call-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+
+    /* Đảm bảo phần tử con được căn chỉnh về phía bên phải */
+    gap: 10px;
+    background-color: #f0f0f0;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+
+
+    /* Điều chỉnh khoảng cách từ trên */
+}
+
+/* Căn chỉnh video call buttons nằm bên phải */
+.video-call-btn {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 10px;
+    position: absolute;
+    right: 250px;
+}
+
+.video-call-btn:hover {
+    background-color: #45a049;
+}
+
+/* Căn chỉnh các nút khác hoặc phần tử con của video call container */
+.end-call-btn {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.end-call-btn:hover {
+    background-color: darkred;
+}
+
+/* Nếu muốn container của video call luôn hiện lên ở bên phải */
+.local-video,
+.remote-video {
+    width: 400px;
+    height: 300px;
+    border-radius: 8px;
+    object-fit: cover;
+    /* Đảm bảo chúng không bị che khuất */
+}
+
+.video-wrapper {
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
