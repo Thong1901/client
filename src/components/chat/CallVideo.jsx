@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { ChatContext } from "../../context/ChatContext";
 
 // Hàm xác nhận cuộc gọi
@@ -14,7 +14,7 @@ const handleCallResponse = () => {
 };
 
 const VideoCall = () => {
-    const { localStream, remoteStream, endCall, acceptCall, rejectCall, incomingCall } = useContext(ChatContext);
+    const { localStream, remoteStream, endCall, acceptCall, rejectCall, incomingCall, outgoingCall, callStatus } = useContext(ChatContext);
     const localVideoRef = useRef(null);
     const remoteVideoRef = useRef(null);
 
@@ -45,6 +45,8 @@ const VideoCall = () => {
 
     return (
         <div className="video-call-container">
+            {/* Thông báo trạng thái cuộc gọi */}
+            {callStatus && <p>{callStatus}</p>}
             {/* Video của chính người dùng */}
             {localStream && (
                 <div className="video-wrapper local-video-wrapper">

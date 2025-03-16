@@ -2,20 +2,18 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { Stack } from "react-bootstrap";
 import { AuthContext } from "../../context/AuthContext";
 import { ChatContext } from "../../context/ChatContext";
-import { useFechRecipientUser } from "../../hooks/useFetchRecipient";
-import moment from "moment"
-import InputEmoji from "react-input-emoji"
-import VideoCall from "../chat/CallVideo"
+import { useFetchRecipientUser } from "../../hooks/useFetchRecipient"; // Fixed typo
+import moment from "moment";
+import InputEmoji from "react-input-emoji";
+import VideoCall from "../chat/CallVideo";
 
 const ChatBox = () => {
     const { user } = useContext(AuthContext);
     const { currentChat, messages, isMessagesLoading, sendTextMessage, startCall, isCallInProgress, incomingCall, acceptCall, rejectCall } = useContext(ChatContext);
-    const { recipientUser } = useFechRecipientUser(currentChat, user);
+    const { recipientUser } = useFetchRecipientUser(currentChat, user); // Fixed typo
 
     const [textMessage, setTextMessage] = useState("");
-
-
-
+    const scroll = useRef(); // Added scroll ref initialization
 
     useEffect(() => {
         scroll.current?.scrollIntoView({ behavior: "smooth" });
@@ -78,7 +76,7 @@ const ChatBox = () => {
                             className={`${message?.senderId === user?._id
                                 ? "message self align-self-end flex-grow-0"
                                 : "message align-self-start flex-grow-0"} `}
-                            ref={scroll}
+                            ref={scroll} // Added scroll ref
                         >
                             <span>{message.text}</span>
                             <span className="message-footer">

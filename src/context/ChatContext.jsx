@@ -1,4 +1,3 @@
-
 import { createContext, useState, useEffect, useCallback, useRef } from "react";
 import { baseUrl, getRequest, postRequest } from "../utils/services";
 import { io } from "socket.io-client";
@@ -26,8 +25,7 @@ export const ChatContextProvider = ({ children, user }) => {
 
     const [allUsers, setAllUsers] = useState([]);
 
-
-
+    const [callStatus, setCallStatus] = useState("");
 
     //tạo cuộc gọi 
     const [localStream, setLocalStream] = useState(null);
@@ -61,6 +59,8 @@ export const ChatContextProvider = ({ children, user }) => {
     }, [remoteStream]);
 
     const startCall = useCallback(async (recipientId) => {
+        if (!socket) return; // Ensure socket is initialized
+        setCallStatus("Đang gọi...");
         const pc = new RTCPeerConnection({
             iceServers: [
                 { urls: "stun:stun.l.google.com:19302" }, // Sử dụng STUN server để định tuyến
@@ -99,6 +99,7 @@ export const ChatContextProvider = ({ children, user }) => {
     }, [socket]);
 
     const answerCall = useCallback(async (senderId, offer) => {
+        if (!socket) return; // Ensure socket is initialized
         const pc = new RTCPeerConnection({
             iceServers: [
                 { urls: "stun:stun.l.google.com:19302" },
@@ -136,6 +137,7 @@ export const ChatContextProvider = ({ children, user }) => {
         setIsCallInProgress(true);
     }, [socket]);
     const acceptCall = useCallback(async () => {
+        if (!socket || !incomingCall) return; // Ensure socket is initialized and incomingCall exists
         if (incomingCall) {
             const { senderId, offer } = incomingCall;
 
@@ -178,6 +180,7 @@ export const ChatContextProvider = ({ children, user }) => {
         }
     }, [incomingCall, socket]);
     const rejectCall = useCallback(() => {
+        if (!socket || !incomingCall) return; // Ensure socket is initialized and incomingCall exists
         if (socket && incomingCall) {
             const { senderId } = incomingCall;
             socket.emit("callRejected", { recipientId: senderId });
@@ -199,6 +202,7 @@ export const ChatContextProvider = ({ children, user }) => {
         setIsCallInProgress(false);
         setIsCallAccepted(false);
         setIsCallRejected(false);
+        setCallStatus("");
     }, [peerConnection]);
 
     useEffect(() => {
@@ -212,6 +216,7 @@ export const ChatContextProvider = ({ children, user }) => {
             if (response === "accept") {
                 answerCall(senderId, offer);
                 setIsCallAccepted(true);
+                setCallStatus("");
             } else {
                 socket.emit("callRejected", { recipientId: senderId });
                 setIsCallRejected(true);
@@ -515,6 +520,7 @@ export const ChatContextProvider = ({ children, user }) => {
                 incomingCall,
                 rejectCall,
                 acceptCall,
+                callStatus,
             }}
         >
             {children}
