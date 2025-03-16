@@ -58,6 +58,8 @@ export const ChatContextProvider = ({ children, user }) => {
         }
     }, [remoteStream]);
 
+    const [iceCandidatesQueue, setIceCandidatesQueue] = useState([]);
+
     const startCall = useCallback(async (recipientId) => {
         if (!socket) return;
         setCallStatus("Đang gọi...");
@@ -67,32 +69,33 @@ export const ChatContextProvider = ({ children, user }) => {
                 iceServers: [
                     { urls: "stun:stun.l.google.com:19302" },
                     { urls: "stun:stun1.l.google.com:19302" },
-                    { urls: 'turn:numb.viagenie.ca', credential: 'muazkh', username: 'webrtc@live.com' }
+                    {
+                        urls: 'turn:numb.viagenie.ca',
+                        username: 'webrtc@live.com',
+                        credential: 'muazkh'
+                    }
                 ],
             });
 
-            // Get local stream first
+            // Handle ICE candidate queue
+            if (iceCandidatesQueue.length > 0) {
+                console.log("Processing ICE candidate queue");
+                iceCandidatesQueue.forEach(async (candidate) => {
+                    await pc.addIceCandidate(new RTCIceCandidate(candidate));
+                });
+                setIceCandidatesQueue([]);
+            }
+
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: true,
+                video: { width: 640, height: 480 },
                 audio: true
             });
+
             setLocalStream(stream);
+            stream.getTracks().forEach(track => pc.addTrack(track, stream));
 
-            // Add all tracks from local stream to peer connection
-            stream.getTracks().forEach(track => {
-                pc.addTrack(track, stream);
-            });
-
-            // Handle remote stream
-            pc.ontrack = (event) => {
-                console.log("Got remote track:", event.streams[0]);
-                setRemoteStream(event.streams[0]);
-            };
-
-            // ICE candidate handling
             pc.onicecandidate = (event) => {
                 if (event.candidate) {
-                    console.log("Sending ICE candidate");
                     socket.emit("sendIceCandidate", {
                         recipientId,
                         candidate: event.candidate,
@@ -102,19 +105,22 @@ export const ChatContextProvider = ({ children, user }) => {
             };
 
             pc.oniceconnectionstatechange = () => {
-                console.log("ICE connection state:", pc.iceConnectionState);
+                console.log("ICE State:", pc.iceConnectionState);
             };
 
-            // Create and send offer
-            const offer = await pc.createOffer({
-                offerToReceiveAudio: true,
-                offerToReceiveVideo: true
-            });
-            await pc.setLocalDescription(new RTCSessionDescription(offer));
+            pc.ontrack = (event) => {
+                if (event.streams && event.streams[0]) {
+                    console.log("Remote stream received");
+                    setRemoteStream(event.streams[0]);
+                }
+            };
+
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
 
             socket.emit("sendOffer", {
                 recipientId,
-                offer,
+                offer: pc.localDescription,
                 senderId: user._id
             });
 
@@ -122,10 +128,33 @@ export const ChatContextProvider = ({ children, user }) => {
             setIsCallInProgress(true);
 
         } catch (err) {
-            console.error("Error starting call:", err);
+            console.error("Error in startCall:", err);
             endCall();
         }
-    }, [socket, user]);
+    }, [socket, user, iceCandidatesQueue]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        socket.on("receiveIceCandidate", async ({ candidate }) => {
+            console.log("Received ICE candidate");
+            if (peerConnection?.remoteDescription) {
+                try {
+                    await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+                    console.log("ICE candidate added successfully");
+                } catch (err) {
+                    console.error("Error adding ICE candidate:", err);
+                    // Queue the candidate if we can't add it yet
+                    setIceCandidatesQueue(queue => [...queue, candidate]);
+                }
+            } else {
+                // Queue the candidate if we don't have a remote description yet
+                setIceCandidatesQueue(queue => [...queue, candidate]);
+            }
+        });
+
+        // ...existing socket listeners...
+    }, [socket, peerConnection]);
 
     const answerCall = useCallback(async (senderId, offer) => {
         if (!socket) return; // Ensure socket is initialized
