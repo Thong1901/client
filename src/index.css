@@ -258,25 +258,21 @@ body {
     justify-content: center;
 }
 
+/* Video Call Container */
 .video-call-container {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-
-    /* Đảm bảo phần tử con được căn chỉnh về phía bên phải */
     gap: 10px;
-    background-color: #f0f0f0;
+    background-color: #ffffff;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-
-
-    /* Điều chỉnh khoảng cách từ trên */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Căn chỉnh video call buttons nằm bên phải */
+/* Video Call Buttons */
 .video-call-btn {
-    background-color: #4caf50;
+    background-color: #1877f2;
     color: white;
     border: none;
     border-radius: 50%;
@@ -284,16 +280,15 @@ body {
     font-weight: bold;
     padding: 10px;
     position: absolute;
-    right: 250px;
+    right: 20px;
 }
 
 .video-call-btn:hover {
-    background-color: #45a049;
+    background-color: #145dbf;
 }
 
-/* Căn chỉnh các nút khác hoặc phần tử con của video call container */
 .end-call-btn {
-    background-color: red;
+    background-color: #f02849;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -303,17 +298,16 @@ body {
 }
 
 .end-call-btn:hover {
-    background-color: darkred;
+    background-color: #d0263e;
 }
 
-/* Nếu muốn container của video call luôn hiện lên ở bên phải */
+/* Video Elements */
 .local-video,
 .remote-video {
     width: 400px;
     height: 300px;
     border-radius: 8px;
     object-fit: cover;
-    /* Đảm bảo chúng không bị che khuất */
 }
 
 .video-wrapper {

@@ -22,6 +22,7 @@ const VideoCall = () => {
         // Gắn stream local vào video local
         if (localVideoRef.current && localStream) {
             localVideoRef.current.srcObject = localStream;
+            localStream.getAudioTracks().forEach(track => track.enabled = true); // Ensure audio is enabled
         }
         // Gắn stream remote vào video remote
         if (remoteVideoRef.current && remoteStream) {
@@ -41,6 +42,16 @@ const VideoCall = () => {
         } else {
             rejectCall(incomingCall.senderId);
         }
+    };
+
+    const handleEndCall = () => {
+        if (localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+        }
+        if (remoteStream) {
+            remoteStream.getTracks().forEach(track => track.stop());
+        }
+        endCall();
     };
 
     return (
@@ -82,7 +93,7 @@ const VideoCall = () => {
             )}
             {/* Nút kết thúc cuộc gọi */}
             {(localStream || remoteStream) && (
-                <button className="end-call-btn" onClick={endCall}>
+                <button className="end-call-btn" onClick={handleEndCall}>
                     Kết thúc cuộc gọi
                 </button>
             )}
