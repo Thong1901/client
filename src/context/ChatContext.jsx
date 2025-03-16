@@ -586,6 +586,27 @@ export const ChatContextProvider = ({ children, user }) => {
         setNotifications(mNotifications);
     })
 
+    const [isMicOn, setIsMicOn] = useState(true);
+    const [isVideoOn, setIsVideoOn] = useState(true);
+
+    const toggleMic = useCallback(() => {
+        if (localStream) {
+            localStream.getAudioTracks().forEach(track => {
+                track.enabled = !track.enabled;
+            });
+            setIsMicOn(!isMicOn);
+        }
+    }, [localStream, isMicOn]);
+
+    const toggleVideo = useCallback(() => {
+        if (localStream) {
+            localStream.getVideoTracks().forEach(track => {
+                track.enabled = !track.enabled;
+            });
+            setIsVideoOn(!isVideoOn);
+        }
+    }, [localStream, isVideoOn]);
+
     return (
         <ChatContext.Provider
             value={{
@@ -625,6 +646,10 @@ export const ChatContextProvider = ({ children, user }) => {
                 rejectCall,
                 acceptCall,
                 callStatus,
+                toggleMic,
+                toggleVideo,
+                isMicOn,
+                isVideoOn,
             }}
         >
             {children}
