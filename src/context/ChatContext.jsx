@@ -197,13 +197,19 @@ export const ChatContextProvider = ({ children, user }) => {
             peerConnection.close();
             setPeerConnection(null);
         }
-        setLocalStream(null);
-        setRemoteStream(null);
+        if (localStream) {
+            localStream.getTracks().forEach(track => track.stop()); // Stop local stream tracks
+            setLocalStream(null);
+        }
+        if (remoteStream) {
+            remoteStream.getTracks().forEach(track => track.stop()); // Stop remote stream tracks
+            setRemoteStream(null);
+        }
         setIsCallInProgress(false);
         setIsCallAccepted(false);
         setIsCallRejected(false);
         setCallStatus("");
-    }, [peerConnection]);
+    }, [peerConnection, localStream, remoteStream]);
 
     useEffect(() => {
         if (!socket) return;
