@@ -66,30 +66,69 @@ const ChatBox = () => {
 
     if (isCallInProgress) {
         return (
-            <div className="video-call-container">
-                {callStatus && <p>{callStatus}</p>}
+            <div className="video-call-container" style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#000',
+                zIndex: 1000
+            }}>
+                {callStatus && <p style={{ color: 'white' }}>{callStatus}</p>}
+
                 {localStream && (
-                    <div className="video-wrapper local-video-wrapper">
+                    <div className="video-wrapper local-video-wrapper" style={{
+                        position: 'absolute',
+                        right: '20px',
+                        bottom: '20px',
+                        width: '200px',
+                        height: '150px',
+                        zIndex: 2
+                    }}>
                         <video
                             ref={localVideoRef}
                             autoPlay
+                            playsInline
                             muted
-                            className="local-video"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
-                        <p>Bạn</p>
                     </div>
                 )}
+
                 {remoteStream && (
-                    <div className="video-wrapper remote-video-wrapper">
+                    <div className="video-wrapper remote-video-wrapper" style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%'
+                    }}>
                         <video
                             ref={remoteVideoRef}
                             autoPlay
-                            className="remote-video"
+                            playsInline
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
-                        <p>Người đối diện</p>
                     </div>
                 )}
-                <button className="end-call-btn" onClick={endCall}>
+
+                <button
+                    className="end-call-btn"
+                    onClick={endCall}
+                    style={{
+                        position: 'absolute',
+                        bottom: '20px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        backgroundColor: 'red',
+                        color: 'white',
+                        border: 'none',
+                        padding: '10px 20px',
+                        borderRadius: '5px',
+                        cursor: 'pointer'
+                    }}
+                >
                     Kết thúc cuộc gọi
                 </button>
             </div>
