@@ -197,22 +197,25 @@ const ChatBox = () => {
     return (
         <Stack gap={4} className="chat-box">
             <div className="chat-header">
-                <strong>{recipientUser?.name}</strong>
-                <button
-                    className="video-call-btn"
-                    onClick={() => startCall(recipientUser._id)}
-                >
-                    {incomingCall && !isCallInProgress && (
-                        <div className="call-notification">
-                            <p>Cuộc gọi video đến từ {incomingCall.senderId}</p>
-                            <button onClick={acceptCall}>Chấp nhận</button>
-                            <button onClick={rejectCall}>Từ chối</button>
-                        </div>
-                    )}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-camera-video" viewBox="0 0 16 16">
-                        <path fillRule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2zm11.5 5.175 3.5 1.556V4.269l-3.5 1.556zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1z" />
-                    </svg>
-                </button>
+                <div className="d-flex align-items-center">
+                    <img
+                        src={recipientUser?.profilePicture || avarter}
+                        alt="profile"
+                        className="rounded-circle me-2"
+                        style={{ width: '38px', height: '38px' }}
+                    />
+                    <div>
+                        <strong>{recipientUser?.name}</strong>
+                        {isOnline && <div className="text-muted small">Active now</div>}
+                    </div>
+                </div>
+                <div className="d-flex align-items-center">
+                    <button className="video-call-btn me-2" onClick={() => startCall(recipientUser._id)}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-camera-video" viewBox="0 0 16 16">
+                            <path fillRule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2z" />
+                        </svg>
+                    </button>
+                </div>
             </div>
             <Stack gap={3} className="messages">
                 {messages &&

@@ -11,24 +11,31 @@ const Chat = () => {
     const { user } = useContext(AuthContext);
     const { userChats, isUserChatsLoading, updateCurrentChat, } = useContext(ChatContext);
     return (
-        <Container>
-            <PotentialChats />
-            {userChats?.length < 1 ? null : (
-                <Stack direction="horizontal" gap={4}
-                    className="align-items-start">
-                    <Stack className="messages-box flex-grow-0 pe-3" gap={3} >
+        <Container fluid className="px-0">
+            <div className="d-flex flex-column flex-md-row">
+                <div className="chat-sidebar">
+                    <PotentialChats />
+                    <div className="messages-box">
                         {isUserChatsLoading && <p>Loading chats...</p>}
-                        {userChats?.map((chat, index) => {
-                            return (
-                                <div key={index} onClick={() => updateCurrentChat(chat)}>
-                                    <UserChat chat={chat} user={user} />
-                                </div>
-                            );
-                        })}
-                    </Stack>
-                    <ChatBox />
-                </Stack>)}
-        </Container>);
+                        {userChats?.map((chat, index) => (
+                            <div key={index} onClick={() => updateCurrentChat(chat)}>
+                                <UserChat chat={chat} user={user} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <div className="chat-main flex-grow-1">
+                    {userChats?.length < 1 ? (
+                        <div className="no-chats-placeholder">
+                            <p>Start a new conversation</p>
+                        </div>
+                    ) : (
+                        <ChatBox />
+                    )}
+                </div>
+            </div>
+        </Container>
+    );
 }
 
 export default Chat;
