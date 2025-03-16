@@ -87,7 +87,7 @@ export const ChatContextProvider = ({ children, user }) => {
 
         // Nhận remote stream
         pc.ontrack = (event) => {
-            setRemoteStream(event.streams[0]);
+            setRemoteStream(event.streams[0]); // Ensure remote stream is set correctly
         };
 
         // Tạo Offer và gửi qua socket
@@ -115,7 +115,7 @@ export const ChatContextProvider = ({ children, user }) => {
 
         // Nhận remote stream
         pc.ontrack = (event) => {
-            setRemoteStream(event.streams[0]);
+            setRemoteStream(event.streams[0]); // Ensure remote stream is set correctly
         };
 
         // Gửi ICE Candidate qua socket
@@ -156,7 +156,7 @@ export const ChatContextProvider = ({ children, user }) => {
 
             // Receive remote stream
             pc.ontrack = (event) => {
-                setRemoteStream(event.streams[0]);
+                setRemoteStream(event.streams[0]); // Ensure remote stream is set correctly
             };
 
             // Send ICE candidate via socket
