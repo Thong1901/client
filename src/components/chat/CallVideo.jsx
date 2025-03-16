@@ -31,6 +31,10 @@ const VideoCall = () => {
 
     // Hàm xử lý cuộc gọi
     const handleAcceptCall = async () => {
+        if (!incomingCall) {
+            console.error("No incoming call data");
+            return;
+        }
         const response = await handleCallResponse();
         if (response === "accept") {
             acceptCall(incomingCall.senderId, incomingCall.offer);

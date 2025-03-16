@@ -5,6 +5,17 @@ body {
     color: rgb(0, 0, 0);
     font-family: "Nunito", sans-serif;
     background: rgb(206, 220, 205);
+
+}
+
+@media (max-height:768px) {
+    .mobile-only {
+        display: block;
+    }
+
+    .mobile-only {
+        display: none;
+    }
 }
 
 /* @media(prefers-color-scheme: dark) {
