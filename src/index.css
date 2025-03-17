@@ -397,3 +397,114 @@ body {
         /* Prevents zoom on iOS */
     }
 }
+
+/* Responsive Breakpoints */
+@media (max-width: 1200px) {
+    .text-warning {
+        padding-right: 200px;
+        width: 20%;
+    }
+
+    .messages-box {
+        height: 80vh;
+    }
+}
+
+@media (max-width: 992px) {
+    .text-warning {
+        padding-right: 100px;
+    }
+
+    .message {
+        max-width: 70%;
+    }
+
+    .local-video,
+    .remote-video {
+        width: 300px;
+        height: 225px;
+    }
+}
+
+@media (max-width: 768px) {
+    .messages-box {
+        height: 70vh;
+        margin-right: 0;
+        border-right: none;
+        border-bottom: 1px solid #ced0d4;
+    }
+
+    .chat-box {
+        max-height: none;
+        height: calc(100vh - 180px);
+    }
+
+    .messages {
+        max-height: calc(100vh - 280px);
+        padding: 0.5rem;
+    }
+
+    .chat-input {
+        padding: 8px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #fff;
+    }
+
+    .video-call-container {
+        padding: 8px;
+    }
+
+    .call-controls {
+        padding: 8px;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 576px) {
+    .chat-header {
+        padding: 8px;
+    }
+
+    .message {
+        max-width: 85%;
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .notifications-box {
+        width: calc(100vw - 32px);
+        right: -100px;
+    }
+
+    .video-call-container .local-video-wrapper {
+        width: 80px;
+        height: 120px;
+        right: 8px;
+        bottom: 90px;
+    }
+
+    .end-call-btn {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
+
+@media (orientation: landscape) and (max-height: 576px) {
+    .chat-box {
+        height: calc(100vh - 120px);
+    }
+
+    .messages {
+        max-height: calc(100vh - 200px);
+    }
+
+    .video-call-container .local-video-wrapper {
+        width: 120px;
+        height: 90px;
+        right: 8px;
+        bottom: 8px;
+    }
+}
