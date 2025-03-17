@@ -135,24 +135,22 @@ export const ChatContextProvider = ({ children, user }) => {
 
     useEffect(() => {
         if (!socket) return;
-
         socket.on("receiveIceCandidate", async ({ candidate }) => {
             console.log("Received ICE candidate");
-            if (peerConnection?.remoteDescription) {
+            if (peerConnection && peerConnection.remoteDescription && peerConnection.remoteDescription.type) {
                 try {
                     await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
                     console.log("ICE candidate added successfully");
                 } catch (err) {
                     console.error("Error adding ICE candidate:", err);
-                    // Queue the candidate if we can't add it yet
                     setIceCandidatesQueue(queue => [...queue, candidate]);
                 }
             } else {
-                // Queue the candidate if we don't have a remote description yet
+                // Queue candidate if remote description isn't set yet
+                console.log("Remote description not set; queuing ICE candidate");
                 setIceCandidatesQueue(queue => [...queue, candidate]);
             }
         });
-
         // ...existing socket listeners...
     }, [socket, peerConnection]);
 
@@ -607,6 +605,98 @@ export const ChatContextProvider = ({ children, user }) => {
         }
     }, [localStream, isVideoOn]);
 
+    const [isVoiceCallInProgress, setIsVoiceCallInProgress] = useState(false);
+
+    const startVoiceCall = useCallback(async (recipientId) => {
+        if (!socket) return;
+        setCallStatus("Đang gọi thoại...");
+        try {
+            const pc = new RTCPeerConnection({
+                iceServers: [
+                    { urls: "stun:stun.l.google.com:19302" },
+                    { urls: "stun:stun1.l.google.com:19302" },
+                    {
+                        urls: 'turn:numb.viagenie.ca',
+                        username: 'webrtc@live.com',
+                        credential: 'muazkh'
+                    }
+                ],
+            });
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            setLocalStream(stream);
+            stream.getTracks().forEach(track => pc.addTrack(track, stream));
+            pc.onicecandidate = (event) => {
+                if (event.candidate) {
+                    socket.emit("sendIceCandidate", {
+                        recipientId,
+                        candidate: event.candidate,
+                        senderId: user._id
+                    });
+                }
+            };
+            pc.ontrack = (event) => {
+                if (event.streams && event.streams[0]) {
+                    setRemoteStream(event.streams[0]);
+                }
+            };
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            socket.emit("sendOffer", {
+                recipientId,
+                offer: pc.localDescription,
+                senderId: user._id
+            });
+            setPeerConnection(pc);
+            setIsVoiceCallInProgress(true);
+        } catch (err) {
+            console.error("Error in startVoiceCall:", err);
+            endCall();
+        }
+    }, [socket, user]);
+
+    const acceptVoiceCall = useCallback(async () => {
+        if (!socket || !incomingCall) return;
+        try {
+            const { senderId, offer } = incomingCall;
+            const pc = new RTCPeerConnection({
+                iceServers: [
+                    { urls: "stun:stun.l.google.com:19302" },
+                    { urls: "stun:stun1.l.google.com:19302" },
+                    {
+                        urls: 'turn:numb.viagenie.ca',
+                        username: 'webrtc@live.com',
+                        credential: 'muazkh'
+                    }
+                ],
+            });
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            setLocalStream(stream);
+            stream.getTracks().forEach(track => pc.addTrack(track, stream));
+            pc.ontrack = (event) => {
+                setRemoteStream(event.streams[0]);
+            };
+            pc.onicecandidate = (event) => {
+                if (event.candidate) {
+                    socket.emit("sendIceCandidate", {
+                        recipientId: senderId,
+                        candidate: event.candidate,
+                        senderId: user._id
+                    });
+                }
+            };
+            await pc.setRemoteDescription(new RTCSessionDescription(offer));
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            socket.emit("sendAnswer", { recipientId: senderId, answer, senderId: user._id });
+            setPeerConnection(pc);
+            setIsVoiceCallInProgress(true);
+            setIncomingCall(null);
+        } catch (err) {
+            console.error("Error accepting voice call:", err);
+            endCall();
+        }
+    }, [incomingCall, socket, user]);
+
     return (
         <ChatContext.Provider
             value={{
@@ -650,6 +740,10 @@ export const ChatContextProvider = ({ children, user }) => {
                 toggleVideo,
                 isMicOn,
                 isVideoOn,
+                // Gọi thoại
+                isVoiceCallInProgress,
+                startVoiceCall,
+                acceptVoiceCall,
             }}
         >
             {children}

@@ -14,6 +14,7 @@ const ChatBox = () => {
         isMessagesLoading,
         sendTextMessage,
         startCall,
+        startVoiceCall, // added
         endCall,
         acceptCall,
         rejectCall,
@@ -21,6 +22,7 @@ const ChatBox = () => {
         remoteStream,
         incomingCall,
         isCallInProgress,
+        isVoiceCallInProgress, // added
         callStatus,
         toggleMic,
         toggleVideo,
@@ -229,6 +231,11 @@ const ChatBox = () => {
                     <button className="video-call-btn me-2" onClick={() => startCall(recipientUser._id)}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-camera-video" viewBox="0 0 16 16">
                             <path fillRule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2z" />
+                        </svg>
+                    </button>
+                    <button className="voice-call-btn me-2" onClick={() => startVoiceCall(recipientUser._id)}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-telephone" viewBox="0 0 16 16">
+                            <path d="M3.654 1.328a.678.678 0 0 1 .168-.013c.26 0 .516.1.707.293l2.09 2.09c.391.391.39 1.023-.002 1.414l-1.1 1.1c-.2.2-.2.512 0 .712l2.83 2.83c.2.2.512.2.712 0l1.1-1.1c.391-.391 1.023-.392 1.414-.002l2.09 2.09c.391.391.391 1.023 0 1.414l-1.1 1.1c-.391.391-1.023.391-1.414 0l-2.83-2.83c-.2-.2-.512-.2-.712 0l-1.1 1.1c-.391.391-1.023.391-1.414 0l-2.09-2.09c-.391-.391-.391-1.023 0-1.414l1.1-1.1c.2-.2.2-.512 0-.712l-2.83-2.83c-.2-.2-.2-.512 0-.712l1.1-1.1z" />
                         </svg>
                     </button>
                 </div>
