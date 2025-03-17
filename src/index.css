@@ -398,6 +398,17 @@ body {
     }
 }
 
+/* Touch-specific styles */
+.touch-device .single-user:active,
+.touch-device .send-btn:active {
+    opacity: 0.7;
+}
+
+.touch-device .chat-input input {
+    font-size: 16px;
+    /* Prevents zoom on iOS */
+}
+
 /* Responsive Breakpoints */
 @media (max-width: 1200px) {
     .text-warning {

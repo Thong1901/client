@@ -54,6 +54,15 @@ const ChatBox = () => {
         }
     }, [localStream, remoteStream]);
 
+    useEffect(() => {
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        if (isTouchDevice) {
+            document.body.classList.add('touch-device');
+        } else {
+            document.body.classList.remove('touch-device');
+        }
+    }, []);
+
     if (!recipientUser)
         return (
             <p style={{ textAlign: "center", width: "100%" }}>

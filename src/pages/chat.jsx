@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { ChatContext } from "../context/ChatContext";
 import ChatBox from "../components/chat/ChatBox";
 import PotentialChats from "../components/chat/PotentialChats";
@@ -10,6 +10,16 @@ import { AuthContext } from "../context/AuthContext";
 const Chat = () => {
     const { user } = useContext(AuthContext);
     const { userChats, isUserChatsLoading, updateCurrentChat, } = useContext(ChatContext);
+
+    useEffect(() => {
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        if (isTouchDevice) {
+            document.body.classList.add('touch-device');
+        } else {
+            document.body.classList.remove('touch-device');
+        }
+    }, []);
+
     return (
         <Container fluid className="px-0">
             <div className="d-flex flex-column flex-md-row">

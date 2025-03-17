@@ -26,6 +26,14 @@ function App() {
     mobileWebApp.content = "yes";
     document.head.appendChild(mobileWebApp);
 
+    // Detect touch support
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    if (isTouchDevice) {
+      document.body.classList.add('touch-device');
+    } else {
+      document.body.classList.remove('touch-device');
+    }
+
     return () => {
       document.head.removeChild(viewport);
       document.head.removeChild(mobileWebApp);

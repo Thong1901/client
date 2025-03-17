@@ -20,6 +20,8 @@ export const AuthContextProvider = ({ children }) => {
         email: "",
         password: "",
     });
+    const [isCallInProgress, setIsCallInProgress] = useState(false);
+    const [isVoiceCallInProgress, setIsVoiceCallInProgress] = useState(false);
 
     //lấy user từ bộ nhớ cục bộ
     useEffect(() => {
@@ -103,6 +105,8 @@ export const AuthContextProvider = ({ children }) => {
                 loginError,
                 updateLoginInfo,
                 isLoginLoading,
+                isCallInProgress,
+                isVoiceCallInProgress,
             }}>
             {children}
         </AuthContext.Provider>
