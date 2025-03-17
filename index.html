@@ -58,6 +58,23 @@
         padding: 6px !important;
       }
     }
+
+    @media (orientation: landscape) and (max-height: 576px) {
+      .chat-box {
+        height: calc(100vh - 120px);
+      }
+
+      .messages {
+        max-height: calc(100vh - 200px);
+      }
+
+      .video-call-container .local-video-wrapper {
+        width: 120px;
+        height: 90px;
+        right: 8px;
+        bottom: 8px;
+      }
+    }
   </style>
 </head>
 
