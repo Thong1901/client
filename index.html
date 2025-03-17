@@ -11,13 +11,51 @@
       display: none;
     }
 
-    @media (max-width:768px) {
+    @media (max-width: 768px) {
       .mobile-only {
         display: block;
       }
 
       .desktop-only {
         display: none;
+      }
+
+      .chat-box {
+        margin: 0 !important;
+        padding: 10px !important;
+      }
+
+      .messages {
+        font-size: 14px;
+      }
+
+      .message {
+        max-width: 85% !important;
+        padding: 8px !important;
+      }
+
+      .chat-input {
+        padding: 5px !important;
+      }
+
+      .send-btn {
+        padding: 6px !important;
+      }
+
+      .video-call-btn {
+        padding: 5px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .chat-header img {
+        width: 32px !important;
+        height: 32px !important;
+      }
+
+      .message {
+        max-width: 90% !important;
+        padding: 6px !important;
       }
     }
   </style>

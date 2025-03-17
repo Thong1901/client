@@ -84,10 +84,10 @@ const ChatBox = () => {
                 {localStream && (
                     <div className="video-wrapper local-video-wrapper" style={{
                         position: 'absolute',
-                        right: '20px',
-                        bottom: '20px',
-                        width: '200px',
-                        height: '150px',
+                        right: window.innerWidth < 768 ? '10px' : '20px',
+                        bottom: window.innerWidth < 768 ? '80px' : '20px',
+                        width: window.innerWidth < 768 ? '100px' : '200px',
+                        height: window.innerWidth < 768 ? '75px' : '150px',
                         zIndex: 2
                     }}>
                         <video
@@ -119,11 +119,11 @@ const ChatBox = () => {
 
                 <div className="call-controls" style={{
                     position: 'absolute',
-                    bottom: '20px',
+                    bottom: window.innerWidth < 768 ? '10px' : '20px',
                     left: '50%',
                     transform: 'translateX(-50%)',
                     display: 'flex',
-                    gap: '10px'
+                    gap: window.innerWidth < 768 ? '5px' : '10px'
                 }}>
                     <button
                         onClick={toggleMic}
@@ -195,8 +195,15 @@ const ChatBox = () => {
     }
 
     return (
-        <Stack gap={4} className="chat-box">
-            <div className="chat-header">
+        <Stack gap={4} className="chat-box" style={{
+            height: '100%',
+            maxHeight: '100vh',
+            padding: window.innerWidth < 768 ? '10px' : '20px'
+        }}>
+            <div className="chat-header" style={{
+                padding: window.innerWidth < 768 ? '5px' : '10px',
+                fontSize: window.innerWidth < 768 ? '14px' : '16px'
+            }}>
                 <div className="d-flex align-items-center">
                     <img
                         src={recipientUser?.profilePicture || avarter}
@@ -217,7 +224,10 @@ const ChatBox = () => {
                     </button>
                 </div>
             </div>
-            <Stack gap={3} className="messages">
+            <Stack gap={3} className="messages" style={{
+                maxHeight: window.innerWidth < 768 ? 'calc(100vh - 160px)' : 'calc(100vh - 200px)',
+                overflowY: 'auto'
+            }}>
                 {messages &&
                     messages.map((message, index) => (
                         <Stack key={index}
@@ -234,7 +244,14 @@ const ChatBox = () => {
                     ))
                 }
             </Stack>
-            <Stack direction="horizontal" gap={3} className="chat-input flex-grow-0">
+            <Stack
+                direction="horizontal"
+                gap={2}
+                className="chat-input flex-grow-0"
+                style={{
+                    padding: window.innerWidth < 768 ? '5px' : '10px'
+                }}
+            >
                 <InputEmoji
                     value={textMessage}
                     onChange={setTextMessage}
